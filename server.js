@@ -8,13 +8,15 @@ const authRoutes = require('./server/routes/auth');
 const userRoutes = require('./server/routes/user');
 const multer = require('multer')
 const path = require('path');
-const { v4: uuidv4 } = require('uuid')
+const { v4: uuidv4 } = require('uuid');
+const helmet = require('helmet');
+const compression = require('compression')
 
-const dataBasePassword = process.env.dataBasePassword
-const dataBaseUser = process.env.dataBaseUser
-const cluster = process.env.cluster
+const dataBasePassword = process.env.MONGO_PASSWORD
+const dataBaseUser = process.env.MONGO_USER
+const cluster = process.env.MONGO_CLUSTER
 
-const DB_URI = 'mongodb+srv://' + dataBaseUser + ':' + dataBasePassword + '@' + cluster;
+const DB_URI = `mongodb+srv://${dataBaseUser}:${dataBasePassword}@${cluster}`;
 
 const app = express();
 const port = process.env.PORT || 8080
@@ -65,6 +67,9 @@ app.use((req, res, next) => {
 app.use(authRoutes);
 app.use(adminRoutes);
 app.use(userRoutes);
+
+app.use(helmet());
+app.use(compression())
 
 app.use((error, req, res, next) => {
     console.log('errrrr', error);
