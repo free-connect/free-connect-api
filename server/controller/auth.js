@@ -76,7 +76,7 @@ exports.postLogin = (req, res, next) => {
                         email: AuthedUser.email,
                         userId: AuthedUser._id.toString()
                     },
-                        process.env.secret,
+                        process.env.JWT_SECRET,
                         { expiresIn: '1hr' }
                     );
                     res.json({
