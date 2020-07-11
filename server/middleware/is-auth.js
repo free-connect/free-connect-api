@@ -10,7 +10,7 @@ module.exports = (req, res, next) => {
     const token = auth.split(' ')[1];
     let decodedToken;
     try {
-        decodedToken = jwt.verify(token, process.env.secret)
+        decodedToken = jwt.verify(token, process.env.JWT_SECRET)
     } catch (err) {
         if (!err.statusCode) {
             err.statusCode = 500
