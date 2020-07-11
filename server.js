@@ -56,7 +56,7 @@ app.use('/images', express.static(path.join(__dirname, 'images')))
 
 app.use((req, res, next) => {
     res.set({
-        'Content-Security-Policy': "script-src 'self'"
+        'Content-Security-Policy': "script-src 'self'; frame-ancestors 'none'"
     })
     res.setHeader('Access-Control-Allow-Origin', 'https://free-connect.herokuapp.com')
     res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
