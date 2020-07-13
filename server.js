@@ -46,7 +46,6 @@ const fileFilter = (req, file, cb) => {
 }
 
 function requireHTTPS(req, res, next) {
-    // The 'x-forwarded-proto' check is for Heroku
     if (!req.secure && req.get('x-forwarded-proto') !== 'https' && process.env.NODE_ENV !== "development") {
       return res.redirect('https://' + req.get('host') + req.url);
     }
@@ -68,7 +67,7 @@ app.use((req, res, next) => {
     res.set({
         'Content-Security-Policy': "script-src 'self'; frame-ancestors 'none'"
     })
-    res.setHeader('Access-Control-Allow-Origin', 'https://free-connect.herokuapp.com')
+    res.setHeader('Access-Control-Allow-Origin', process.env.APPROVED_URL)
     res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     next();
