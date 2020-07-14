@@ -1,4 +1,5 @@
 const Resource = require('../models/resources');
+const User = require('../models/user');
 const { validationResult } = require('express-validator');
 const fileHelper = require('../util/file')
 
@@ -125,6 +126,7 @@ exports.postAddResource = (req, res, next) => {
 
 exports.postEditResource = (req, res, next) => {
     const { title, address, phone, website, id, city } = req.body;
+    console.log(req.userId)
     const dynamicData = JSON.parse(req.body.dynamicData);
     const services = JSON.parse(req.body.services)
     const errors = validationResult(req);
@@ -136,7 +138,26 @@ exports.postEditResource = (req, res, next) => {
     let newTitle = title.split(/\s+/).map(a => a[0].toUpperCase() + a.substring(1)).join(' ');
     let newPhone = phone.split(/\D+/gi).join('').trim();
     newPhone = `(${newPhone.substring(0, 3)}) ${newPhone.substring(3, 6)}-${newPhone.substring(6, 10)}`
-    Resource
+    if (req.userId !== process.env.ADMIN_ID) {
+    User
+        .findById(req.userId)
+        .then(user => {
+            console.log(user.affiliation, id)
+            if (user.affiliation.toString() !== id.toString()) {
+                const error = new Error("Sorry, you don't have permission to edit this resource!");
+                error.statusCode = 401;
+                throw error 
+            }
+            return;
+        })
+        .catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500
+            }
+            next(err)
+        })
+    }
+    return Resource
         .findById(id)
         .then(resource => {
             resource.title = newTitle;

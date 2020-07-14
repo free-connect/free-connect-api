@@ -30,12 +30,13 @@ exports.getMyLikes = (req, res, next) => {
         })
         .populate('likes')
         .then(user => {
-            const likes = user.likes.map(a =>{ 
+            const likes = user.likes.map(a => {
                 return {
                     title: a.title,
-                    dynamicData: a.dynamicData
-                    }
-                })
+                    dynamicData: a.dynamicData,
+                    id: a._id
+                }
+            })
             res.send({
                 likes: likes
             })
