@@ -121,8 +121,8 @@ exports.postReview = (req, res, next) => {
                     _id: resourceId
                 })
                 .then(checkResource => {
-                    let test = checkResource.reviews.find(a => a.userId.toString() === user.toString());
-                    if (test) {
+                    let reviewExists = checkResource.reviews.find(a => a.userId.toString() === user.toString());
+                    if (reviewExists) {
                         const error = new Error("Resource already reviewed!");
                         error.statusCode = 401;
                         throw error

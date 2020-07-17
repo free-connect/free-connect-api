@@ -15,6 +15,12 @@ function compare(check, arrs) {
     return count
 }
 
+function trimPhone(val) {
+    let trimmedVal = val.split(/\D+/gi).join('').trim();
+    return `(${trimmedVal.substring(0, 3)}) ${trimmedVal.substring(3, 6)}-${trimmedVal.substring(6, 10)}`
+}
+const trimTitle = (val) => val.split(/\s+/).map(a => a[0].toUpperCase() + a.substring(1)).join(' ');
+
 exports.getResources = (req, res, next) => {
     const queryServices = req.query.services;
     const currentPage = parseInt(req.query.page) || 1;
@@ -95,9 +101,8 @@ exports.postAddResource = (req, res, next) => {
     }
     //this section sanitizes some data
     const imageUrl = req.file.path.replace('\\', '/');
-    let newTitle = title.split(/\s+/).map(a => a[0].toUpperCase() + a.substring(1)).join(' ');
-    let newPhone = phone.split(/\D+/gi).join('').trim();
-    newPhone = `(${newPhone.substring(0, 3)}) ${newPhone.substring(3, 6)}-${newPhone.substring(6, 10)}`
+    const newTitle = trimTitle(title);
+    const newPhone = trimPhone(phone);
     const resource = new Resource({
         title: newTitle,
         address: address,
@@ -126,7 +131,6 @@ exports.postAddResource = (req, res, next) => {
 
 exports.postEditResource = (req, res, next) => {
     const { title, address, phone, website, id, city } = req.body;
-    console.log(req.userId)
     const dynamicData = JSON.parse(req.body.dynamicData);
     const services = JSON.parse(req.body.services)
     const errors = validationResult(req);
@@ -135,9 +139,8 @@ exports.postEditResource = (req, res, next) => {
             errors: errors.array()
         })
     }
-    let newTitle = title.split(/\s+/).map(a => a[0].toUpperCase() + a.substring(1)).join(' ');
-    let newPhone = phone.split(/\D+/gi).join('').trim();
-    newPhone = `(${newPhone.substring(0, 3)}) ${newPhone.substring(3, 6)}-${newPhone.substring(6, 10)}`
+    const newTitle = trimTitle(title)
+    const newPhone = trimPhone(phone)
     if (req.userId !== process.env.ADMIN_ID) {
     User
         .findById(req.userId)
