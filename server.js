@@ -65,7 +65,7 @@ app.use('/images', express.static(path.join(__dirname, 'images')))
 
 app.use((req, res, next) => {
     res.set({
-        'Content-Security-Policy': "script-src 'self', frame-ancestors 'none'; X-Content-Type-Options 'nosniff'"
+        'Content-Security-Policy': "script-src 'self', frame-ancestors 'none', X-Content-Type-Options 'nosniff'"
     })
     res.setHeader('Access-Control-Allow-Origin', process.env.APPROVED_URL)
     res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
