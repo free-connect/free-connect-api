@@ -1,6 +1,7 @@
 const User = require('../models/user');
 const Resource = require('../models/resources')
 const ObjectId = require('mongodb').ObjectID;
+const sendMail = require('./../util/mail');
 
 exports.getMyResource = (req, res, next) => {
     User
@@ -217,6 +218,28 @@ exports.getLikes = (req, res, next) => {
         .then(user => {
             res.json({
                 likes: user.likes
+            })
+        })
+        .catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500
+            }
+            next(err)
+        })
+}
+
+exports.postContact = (req, res, next) => {
+    const { email, name, subject, message } = req.body;
+    const newMessage = {
+        from: process.env.MY_EMAIL,
+        to: process.env.MY_EMAIL,
+        subject: subject,
+        text: 'new email from '+name+ ' at '+ email +'.' + message
+    };
+    return sendMail(newMessage)
+        .then(() => {
+            res.json({
+                success: true
             })
         })
         .catch(err => {

@@ -1,7 +1,8 @@
 const User = require('../models/user');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { validationResult } = require('express-validator')
+const { validationResult } = require('express-validator');
+const sendMail = require('./../util/mail')
 
 exports.postRegister = (req, res, next) => {
     const { username, password, affiliation, name, email } = req.body;
@@ -28,15 +29,18 @@ exports.postRegister = (req, res, next) => {
             return user
                 .save()
                 .then(() => {
-                    res.json({
-                        success: true
-                    })
-                })
-                .catch(err => {
-                    if (!err.statusCode) {
-                        err.statusCode = 500
-                    }
-                    next(err)
+                    const newMessage = {
+                        from: process.env.MY_EMAIL,
+                        to: email,
+                        subject: 'Thanks for signing up!',
+                        text: 'We appreciate you signing up to use this site! Please visit us soon to add resources and browse current supportive services in the area. Your username for login is ' + username + ' or you can simply log in with your email. Thanks again!'
+                    };
+                    return sendMail(newMessage)
+                        .then(() => {
+                            res.json({
+                                success: true
+                            })
+                        })
                 })
         })
         .catch(err => {
@@ -102,5 +106,34 @@ exports.postLogin = (req, res, next) => {
 }
 
 exports.postReset = (req, res, next) => {
-    //some logic for emailing new password, still working on this!
-}
+    const { email } = req.body;
+    return User
+        .findOne({
+            email: email
+        })
+        .then(user => {
+            if (!user) {
+                const error = new Error("No user exists!");
+                error.statusCode = 401;
+                throw error;
+            }
+            const newMessage = {
+                from: process.env.MY_EMAIL,
+                to: email,
+                subject: 'testing....',
+                text: 'what up????'
+            };
+            return sendMail(newMessage)
+                .then(() => {
+                    res.json({
+                        success: true
+                    })
+                })
+        })
+        .catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500
+            }
+            next(err)
+        })
+}   

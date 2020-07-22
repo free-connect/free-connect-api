@@ -11,5 +11,6 @@ router.get('/review-list', userController.getReviews)
 router.get('/details', userController.getDetails)
 router.post('/like', isAuth, userController.postLike)
 router.get('/my-likes', isAuth, userController.getLikes)
+router.post('/contact', userController.postContact)
 
 module.exports = router

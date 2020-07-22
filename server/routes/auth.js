@@ -37,7 +37,7 @@ router.post(
     AuthController.postRegister
 );
 router.post('/login', AuthController.postLogin);
-router.post('/reset', AuthController.postReset)
+router.post('/reset', AuthController.postReset);
 
 
 module.exports = router
