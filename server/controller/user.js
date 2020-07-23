@@ -2,6 +2,7 @@ const User = require('../models/user');
 const Resource = require('../models/resources')
 const ObjectId = require('mongodb').ObjectID;
 const sendMail = require('./../util/mail');
+const saniContact = require('./../util/xssSani')
 
 exports.getMyResource = (req, res, next) => {
     User
@@ -230,11 +231,17 @@ exports.getLikes = (req, res, next) => {
 
 exports.postContact = (req, res, next) => {
     const { email, name, subject, message } = req.body;
+    //little sani to prevent XSS attacks
+    newEmail = saniContact(email);
+    newName = saniContact(name);
+    newSubject = saniContact(subject);
+    newerMessage = saniContact(message);
     const newMessage = {
         from: process.env.MY_EMAIL,
         to: process.env.MY_EMAIL,
         subject: subject,
-        text: 'new email from '+name+ ' at '+ email +'.' + message
+        text: 'New email from '+name+ ' at '+ email +'.' + message,
+        html: '<p>New email from '+name+ ' at '+ email +'.</p> <br /> <p>' + message+'</p>'
     };
     return sendMail(newMessage)
         .then(() => {

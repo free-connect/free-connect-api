@@ -1,5 +1,7 @@
 const nodemailer = require('nodemailer')
 
+//for production
+
 const mailOptions = {
     host: 'smtp.gmail.com',
     port: 465,
@@ -10,16 +12,26 @@ const mailOptions = {
     }
 }
 
+//for testing
+
+// const mailOptions = {
+//     host: "smtp.mailtrap.io",
+//     port: 2525,
+//     auth: {
+//         user: process.env.TEST_USERNAME,
+//         pass: process.env.TEST_USER_PW
+//     }
+//   };
+
 const transport = nodemailer.createTransport(mailOptions)
 
 async function handleMail(message) {
     return new Promise((resolve, reject) => {
         transport.sendMail(message, (err, info) => {
-            console.log('this error!', err)
             if (err) {
                 const error = new Error("Hmm something went wrong. Please try again!");
                 error.statusCode = 401;
-                console.log(error)
+                console.log(err)
                 reject(error)
             } else {
                 resolve(true)
