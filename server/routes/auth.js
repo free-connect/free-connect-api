@@ -38,6 +38,8 @@ router.post(
 );
 router.post('/login', AuthController.postLogin);
 router.post('/reset', AuthController.postReset);
+router.get('/change-password', AuthController.getChangePw);
+router.post('/change-password', AuthController.postChangePw);
 
 
 module.exports = router

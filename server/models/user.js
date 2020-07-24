@@ -20,6 +20,8 @@ const userSchema = new Schema({
         type: String,
         required: true
     },
+    resetToken: String,
+    resetExpiry: Date,
     email: {
         type: String,
         required: true,
