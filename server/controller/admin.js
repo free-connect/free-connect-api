@@ -1,16 +1,18 @@
 const Resource = require('../models/resources');
 const User = require('../models/user');
+const update = require('../util/imageUploadS3');
 const { validationResult } = require('express-validator');
-const fileHelper = require('../util/file')
+const aws = require("aws-sdk");
+const s3 = new aws.S3();
 
 function compare(check, arrs) {
-    check = [...check]
+    const newCheck = [...check]
     let count = 0;
-    while (check[0]) {
-        if (arrs.includes(check[check.length - 1])) {
+    while (newCheck[0]) {
+        if (arrs.includes(newCheck[newCheck.length - 1])) {
             count++
         }
-        check.pop()
+        newCheck.pop()
     };
     return count
 }
@@ -44,7 +46,7 @@ exports.getResources = (req, res, next) => {
                 sorted = resources
             }
             sorted = sorted.splice((currentPage - 1) * perPage, perPage);
-            return sorted
+            return sorted;
         })
         .then(sortedResources => {
             res.json({
@@ -100,7 +102,7 @@ exports.postAddResource = (req, res, next) => {
         })
     }
     //this section sanitizes some data
-    const imageUrl = req.file.path.replace('\\', '/');
+    const imageUrl = req.file.location;
     const newTitle = trimTitle(title);
     const newPhone = trimPhone(phone);
     const resource = new Resource({
@@ -142,23 +144,22 @@ exports.postEditResource = (req, res, next) => {
     const newTitle = trimTitle(title)
     const newPhone = trimPhone(phone)
     if (req.userId !== process.env.ADMIN_ID) {
-    User
-        .findById(req.userId)
-        .then(user => {
-            console.log(user.affiliation, id)
-            if (user.affiliation.toString() !== id.toString()) {
-                const error = new Error("Sorry, you don't have permission to edit this resource!");
-                error.statusCode = 401;
-                throw error 
-            }
-            return;
-        })
-        .catch(err => {
-            if (!err.statusCode) {
-                err.statusCode = 500
-            }
-            next(err)
-        })
+        User
+            .findById(req.userId)
+            .then(user => {
+                if (user.affiliation.toString() !== id.toString()) {
+                    const error = new Error("Sorry, you don't have permission to edit this resource!");
+                    error.statusCode = 401;
+                    throw error
+                }
+                return;
+            })
+            .catch(err => {
+                if (!err.statusCode) {
+                    err.statusCode = 500
+                }
+                next(err)
+            })
     }
     return Resource
         .findById(id)
@@ -167,8 +168,7 @@ exports.postEditResource = (req, res, next) => {
             resource.address = address;
             //only edits the image if a new file was sent
             if (req.file) {
-                fileHelper.deleteFile(resource.url)
-                resource.url = req.file.path;
+                resource.url = req.file.location;
             }
             resource.services = services;
             resource.phone = newPhone;
@@ -196,7 +196,20 @@ exports.postDeleteResource = (req, res, next) => {
     Resource
         .findById(idToDelete)
         .then(resource => {
-            fileHelper.deleteFile(resource.url)
+            let newResource = resource.url
+            let resourceUrl = newResource.toString().split('/');
+            resourceUrl = resourceUrl[resourceUrl.length - 1];
+            const params = {
+                Bucket: process.env.S3_BUCKET_NAME,
+                Key: resourceUrl
+            }
+            s3.deleteObject(params, function (err, data) {
+                if (err) {
+                    console.log(err, err.stack);
+                } else {
+                    console.log(params);
+                }
+            });
         })
         .catch(err => {
             if (!err.statusCode) {

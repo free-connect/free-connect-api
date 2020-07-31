@@ -6,11 +6,10 @@ const mongoose = require('mongoose')
 const adminRoutes = require('./server/routes/admin')
 const authRoutes = require('./server/routes/auth');
 const userRoutes = require('./server/routes/user');
-const multer = require('multer')
 const path = require('path');
-const { v4: uuidv4 } = require('uuid');
 const helmet = require('helmet');
-const compression = require('compression')
+const compression = require('compression');
+const upload = require('./server/util/imageUploadS3')
 
 const dataBasePassword = process.env.MONGO_PASSWORD
 const dataBaseUser = process.env.MONGO_USER
@@ -23,27 +22,7 @@ const port = process.env.PORT || 8080
 
 mongoose.set('useFindAndModify', false);
 
-const fileStorage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, './images')
-    },
-    filename: (req, file, cb) => {
-        const extension = file.originalname.split('.').pop();
-        cb(null, uuidv4() + '.' + extension)
-    }
-})
-
-const fileFilter = (req, file, cb) => {
-    if (
-        file.mimetype === 'image/png' ||
-        file.mimetype === 'image/jpg' ||
-        file.mimetype === 'image/jpeg'
-    ) {
-        cb(null, true)
-    } else {
-        cb(null, false)
-    }
-}
+app.use(upload.single('image'))
 
 function requireHTTPS(req, res, next) {
     if (!req.secure && req.get('x-forwarded-proto') !== 'https' && process.env.NODE_ENV !== "development") {
@@ -55,13 +34,6 @@ function requireHTTPS(req, res, next) {
 app.use(requireHTTPS)
 
 app.use(bodyParser.json())
-
-app.use(multer({
-    storage: fileStorage,
-    fileFilter: fileFilter
-}).single('image'))
-
-app.use('/images', express.static(path.join(__dirname, 'images')))
 
 app.use((req, res, next) => {
     res.set({
