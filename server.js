@@ -6,7 +6,6 @@ const mongoose = require('mongoose')
 const adminRoutes = require('./server/routes/admin')
 const authRoutes = require('./server/routes/auth');
 const userRoutes = require('./server/routes/user');
-const path = require('path');
 const helmet = require('helmet');
 const compression = require('compression');
 const upload = require('./server/util/imageUploadS3')
