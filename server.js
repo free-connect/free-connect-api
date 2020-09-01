@@ -52,7 +52,7 @@ app.use(helmet());
 app.use(compression())
 
 app.use((error, req, res, next) => {
-    console.log('errrrr', error);
+    console.log('Error: ', error);
     const status = error.statusCode || 500;
     const message = error.message;
     res.status(status).json({ message: message })

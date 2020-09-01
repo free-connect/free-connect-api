@@ -189,14 +189,14 @@ exports.postLike = (req, res, next) => {
             if (user.likes.includes(newLikedRes)) {
                 const error = new Error("Resource already liked!");
                 error.statusCode = 401;
-                throw error
-            } else if (user.affiliation.toString() === newLikedRes.toString()) {
+                throw error;
+            } else if (user.affiliation && user.affiliation.toString() === newLikedRes.toString()) {
                 const error = new Error("Can't like your own resource!");
                 error.statusCode = 401;
                 throw error
             }
-            user.likes.push(newLikedRes)
-            return user.save()
+            user.likes.push(newLikedRes);
+            return user.save();
         })
         .then(() => {
             res.json({

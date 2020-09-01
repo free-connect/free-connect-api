@@ -112,7 +112,6 @@ exports.postReset = (req, res, next) => {
     crypto
         .randomBytes(32, (err, buffer) => {
             if (err) {
-                console.log(err)
                 const error = new Error("Hmm something went wrong. Please try again!");
                 error.statusCode = 500;
                 throw error;
