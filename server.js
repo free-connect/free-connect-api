@@ -48,7 +48,10 @@ app.use(authRoutes);
 app.use(adminRoutes);
 app.use(userRoutes);
 
-app.use(helmet());
+app.use(helmet({
+    hidePoweredBy: { setTo: 'PHP 4.2.0' }
+}));
+
 app.use(compression())
 
 app.use((error, req, res, next) => {

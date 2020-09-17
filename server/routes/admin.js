@@ -3,7 +3,6 @@ const adminController = require('../controller/admin')
 const router = express.Router();
 const isAuth = require('../middleware/is-auth');
 const { body } = require('express-validator');
-const upload = require('../util/imageUploadS3');
 
 router.post('/',
     body('title',

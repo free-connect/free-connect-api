@@ -40,6 +40,7 @@ exports.getResources = (req, res, next) => {
             if (services[0]) {
                 //see the above compare function. Services are stored in db as an object
                 sorted = resources.sort((a, b) => {
+                    console.log('in sort', a,b)
                     return compare(services, Object.keys(b.services)) - compare(services, Object.keys(a.services))
                 })
             } else {
@@ -89,11 +90,12 @@ exports.postAddResource = (req, res, next) => {
     const services = JSON.parse(req.body.services);
     const dynamicData = JSON.parse(req.body.dynamicData);
     const errors = validationResult(req);
+    let imageUrl;
     //this section handles the image file. If there is none, it sends this error
     if (!req.file) {
-        return res.json({
-            errors: 'No image provided or did not load properly! Try again'
-        })
+        imageUrl = 'none';
+    } else {
+        imageUrl = req.file.location;
     }
     //this handles the validation errors
     if (!errors.isEmpty()) {
@@ -102,7 +104,6 @@ exports.postAddResource = (req, res, next) => {
         })
     }
     //this section sanitizes some data
-    const imageUrl = req.file.location;
     const newTitle = trimTitle(title);
     const newPhone = trimPhone(phone);
     const resource = new Resource({

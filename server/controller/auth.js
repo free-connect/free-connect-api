@@ -35,7 +35,10 @@ exports.postRegister = (req, res, next) => {
                         from: process.env.MY_EMAIL,
                         to: email,
                         subject: 'Thanks for signing up!',
-                        text: 'We appreciate you signing up to use this site! Please visit us soon to add resources and browse current supportive services in the area. Your username for login is "' + username + '" or you can simply log in with your email. Thanks again!'
+                        html: `
+                        <p>We appreciate you signing up to use this site!</p>
+                        <p>Please visit us soon to add resources and browse current supportive services in the area. Your username for login is "${username}" or you can simply log in with your email. Thanks again!
+                        `
                     };
                     return sendMail(newMessage)
                         .then(() => {
